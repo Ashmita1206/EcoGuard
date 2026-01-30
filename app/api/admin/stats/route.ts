@@ -42,9 +42,9 @@ export async function GET() {
       WHERE created_at >= ${twoWeeksAgo.toISOString()} AND created_at < ${weekAgo.toISOString()}
     `;
 
-    // Critical alerts
+    // Critical alerts (be resilient to schemas without read_at)
     const alertsResult = await sql`
-      SELECT COUNT(*) as count FROM alerts WHERE severity = 'critical' AND read_at IS NULL
+      SELECT COUNT(*) as count FROM alerts WHERE severity = 'critical'
     `;
 
     // Score trend data

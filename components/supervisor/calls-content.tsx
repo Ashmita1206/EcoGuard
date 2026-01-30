@@ -1,6 +1,7 @@
 "use client";
 
 import useSWR from "swr";
+import { loggingFetcher } from "@/lib/fetcher";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,7 +34,6 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 interface Call {
   id: string;
@@ -60,7 +60,7 @@ export function SupervisorCallsContent() {
   const [agentFilter, setAgentFilter] = useState("all");
   const { data, isLoading } = useSWR<{ calls: Call[]; agents: { id: string; name: string }[] }>(
     "/api/supervisor/calls",
-    fetcher
+    loggingFetcher
   );
 
   const calls = data?.calls || [];
@@ -88,6 +88,9 @@ export function SupervisorCallsContent() {
       </div>
     );
   }
+
+  // eslint-disable-next-line no-console
+  console.log('[render] SupervisorCalls data:', { calls: calls.length, agents: agents.length });
 
   return (
     <div className="space-y-6">
@@ -315,6 +318,7 @@ export function SupervisorCallsContent() {
           </Table>
         </CardContent>
       </Card>
+      {/* Debug JSON removed */}
     </div>
   );
 }

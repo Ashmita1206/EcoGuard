@@ -1,6 +1,7 @@
 "use client";
 
 import useSWR from "swr";
+import { loggingFetcher } from "@/lib/fetcher";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -16,7 +17,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { BookOpen, Search, Eye, Plus, FileText } from "lucide-react";
 import { useState } from "react";
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 interface SOP {
   id: string;
@@ -37,7 +37,7 @@ export function SOPsContent({ canEdit = false }: SOPsContentProps) {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const { data, isLoading } = useSWR<{ sops: SOP[]; categories: string[] }>(
     "/api/sops",
-    fetcher
+    loggingFetcher
   );
 
   const sops = data?.sops || [];
@@ -195,6 +195,8 @@ export function SOPsContent({ canEdit = false }: SOPsContentProps) {
           </CardContent>
         </Card>
       )}
+
+      {/* Debug JSON removed */}
     </div>
   );
 }

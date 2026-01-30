@@ -17,82 +17,121 @@ export async function GET() {
     const twoWeeksAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
 
     // Get team members count (agents under this supervisor)
-    const teamSizeResult = await sql`
-      SELECT COUNT(*) as count FROM users WHERE supervisor_id = ${user.id} AND role = 'agent'
-    `;
+    let teamSizeResult: any = [{ count: 0 }];
+    try {
+      teamSizeResult = await sql`
+        SELECT COUNT(*) as count FROM users WHERE supervisor_id = ${user.id} AND role = 'agent'
+      `;
+    } catch (e) {
+      console.error('/api/supervisor/stats teamSize error', e);
+      teamSizeResult = [{ count: 0 }];
+    }
 
     // Get today's calls count
-    const todayCallsResult = await sql`
-      SELECT COUNT(*) as count
-      FROM calls c
-      JOIN users u ON c.agent_id = u.id
-      WHERE u.supervisor_id = ${user.id}
-      AND c.created_at >= ${today.toISOString()}
-    `;
+    let todayCallsResult: any = [{ count: 0 }];
+    try {
+      todayCallsResult = await sql`
+        SELECT COUNT(*) as count
+        FROM calls c
+        JOIN users u ON c.agent_id = u.id
+        WHERE u.supervisor_id = ${user.id}
+        AND c.created_at >= ${today.toISOString()}
+      `;
+    } catch (e) {
+      console.error('/api/supervisor/stats todayCalls error', e);
+      todayCallsResult = [{ count: 0 }];
+    }
 
     // Get yesterday's calls for trend
-    const yesterdayCallsResult = await sql`
-      SELECT COUNT(*) as count
-      FROM calls c
-      JOIN users u ON c.agent_id = u.id
-      WHERE u.supervisor_id = ${user.id}
-      AND c.created_at >= ${yesterday.toISOString()}
-      AND c.created_at < ${today.toISOString()}
-    `;
+    let yesterdayCallsResult: any = [{ count: 0 }];
+    try {
+      yesterdayCallsResult = await sql`
+        SELECT COUNT(*) as count
+        FROM calls c
+        JOIN users u ON c.agent_id = u.id
+        WHERE u.supervisor_id = ${user.id}
+        AND c.created_at >= ${yesterday.toISOString()}
+        AND c.created_at < ${today.toISOString()}
+      `;
+    } catch (e) {
+      console.error('/api/supervisor/stats yesterdayCalls error', e);
+      yesterdayCallsResult = [{ count: 0 }];
+    }
 
     // Get team average score (join through calls to get agent)
-    const teamScoreResult = await sql`
-      SELECT AVG(e.total_score) as avg_score
-      FROM evaluations e
-      JOIN calls c ON e.call_id = c.id
-      JOIN users u ON c.agent_id = u.id
-      WHERE u.supervisor_id = ${user.id}
-      AND e.created_at >= ${weekAgo.toISOString()}
-    `;
+    let teamScoreResult: any = [{ avg_score: 0 }];
+    try {
+      teamScoreResult = await sql`
+        SELECT AVG(e.total_score) as avg_score
+        FROM evaluations e
+        JOIN calls c ON e.call_id = c.id
+        JOIN users u ON c.agent_id = u.id
+        WHERE u.supervisor_id = ${user.id}
+        AND e.created_at >= ${weekAgo.toISOString()}
+      `;
+    } catch (e) {
+      console.error('/api/supervisor/stats teamScore error', e);
+      teamScoreResult = [{ avg_score: 0 }];
+    }
 
     // Get previous week's average for trend
-    const prevTeamScoreResult = await sql`
-      SELECT AVG(e.total_score) as avg_score
-      FROM evaluations e
-      JOIN calls c ON e.call_id = c.id
-      JOIN users u ON c.agent_id = u.id
-      WHERE u.supervisor_id = ${user.id}
-      AND e.created_at >= ${twoWeeksAgo.toISOString()}
-      AND e.created_at < ${weekAgo.toISOString()}
-    `;
+    let prevTeamScoreResult: any = [{ avg_score: 0 }];
+    try {
+      prevTeamScoreResult = await sql`
+        SELECT AVG(e.total_score) as avg_score
+        FROM evaluations e
+        JOIN calls c ON e.call_id = c.id
+        JOIN users u ON c.agent_id = u.id
+        WHERE u.supervisor_id = ${user.id}
+        AND e.created_at >= ${twoWeeksAgo.toISOString()}
+        AND e.created_at < ${weekAgo.toISOString()}
+      `;
+    } catch (e) {
+      console.error('/api/supervisor/stats prevTeamScore error', e);
+      prevTeamScoreResult = [{ avg_score: 0 }];
+    }
 
-    // Get pending alerts
-    const alertsResult = await sql`
-      SELECT COUNT(*) as count
-      FROM alerts
-      WHERE user_id = ${user.id}
-      AND read_at IS NULL
-    `;
+    // Get pending alerts (robust to schema differences)
+    let alertsResult: any[] = [];
+    try {
+      const rows = await sql`SELECT * FROM alerts ORDER BY created_at DESC LIMIT 100`;
+      alertsResult = Array.isArray(rows) ? rows.filter((a: any) => a.user_id === user.id || a.userId === user.id || a.user === user.id) : [];
+    } catch (e) {
+      console.error('/api/supervisor/stats alerts select error', e);
+      alertsResult = [];
+    }
 
     // Get agent performance
-    const agentPerformance = await sql`
-      SELECT 
-        u.id,
-        u.name,
-        u.avatar_url,
-        COUNT(DISTINCT c.id) as total_calls,
-        COALESCE(AVG(e.total_score), 0) as avg_score
-      FROM users u
-      LEFT JOIN calls c ON c.agent_id = u.id AND c.created_at >= ${weekAgo.toISOString()}
-      LEFT JOIN evaluations e ON e.call_id = c.id AND e.created_at >= ${weekAgo.toISOString()}
-      WHERE u.supervisor_id = ${user.id} AND u.role = 'agent'
-      GROUP BY u.id, u.name, u.avatar_url
-      ORDER BY avg_score DESC
-    `;
+    let agentPerformance: any[] = [];
+    try {
+      agentPerformance = await sql`
+        SELECT 
+          u.id,
+          u.name,
+          u.avatar_url,
+          COUNT(DISTINCT c.id) as total_calls,
+          COALESCE(AVG(e.total_score), 0) as avg_score
+        FROM users u
+        LEFT JOIN calls c ON c.agent_id = u.id AND c.created_at >= ${weekAgo.toISOString()}
+        LEFT JOIN evaluations e ON e.call_id = c.id AND e.created_at >= ${weekAgo.toISOString()}
+        WHERE u.supervisor_id = ${user.id} AND u.role = 'agent'
+        GROUP BY u.id, u.name, u.avatar_url
+        ORDER BY avg_score DESC
+      `;
+    } catch (e) {
+      console.error('/api/supervisor/stats agentPerformance error', e);
+      agentPerformance = [];
+    }
 
-    // Get recent alerts
-    const recentAlerts = await sql`
-      SELECT id, alert_type, title, message, severity, created_at
-      FROM alerts
-      WHERE user_id = ${user.id}
-      ORDER BY created_at DESC
-      LIMIT 5
-    `;
+    // Get recent alerts (robust to schema differences)
+    let recentAlerts: any[] = [];
+    try {
+      const rows = await sql`SELECT id, alert_type, title, message, severity, created_at FROM alerts ORDER BY created_at DESC LIMIT 100`;
+      recentAlerts = Array.isArray(rows) ? rows.filter((a: any) => a.user_id === user.id || a.userId === user.id || a.user === user.id).slice(0,5) : [];
+    } catch (e) {
+      console.error('/api/supervisor/stats recent alerts select error', e);
+      recentAlerts = [];
+    }
 
     const todayCalls = Number(todayCallsResult[0]?.count) || 0;
     const yesterdayCalls = Number(yesterdayCallsResult[0]?.count) || 0;

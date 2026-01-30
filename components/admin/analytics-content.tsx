@@ -1,6 +1,7 @@
 "use client";
 
 import useSWR from "swr";
+import { loggingFetcher } from "@/lib/fetcher";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
@@ -26,13 +27,12 @@ import {
   Line,
 } from "recharts";
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export function AnalyticsContent() {
   const [timeRange, setTimeRange] = useState("7d");
   const { data, isLoading } = useSWR(
     `/api/admin/analytics?range=${timeRange}`,
-    fetcher
+    loggingFetcher
   );
 
   if (isLoading || !data) {
@@ -47,6 +47,9 @@ export function AnalyticsContent() {
       </div>
     );
   }
+
+  // eslint-disable-next-line no-console
+  console.log('[render] AdminAnalytics data keys:', Object.keys(data || {}));
 
   return (
     <div className="space-y-6">

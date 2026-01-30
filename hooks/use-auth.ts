@@ -3,18 +3,13 @@
 import useSWR from "swr";
 import { useRouter } from "next/navigation";
 import type { User } from "@/lib/types";
-
-const fetcher = (url: string) =>
-  fetch(url).then((res) => {
-    if (!res.ok) throw new Error("Not authenticated");
-    return res.json();
-  });
+import { loggingFetcher } from "@/lib/fetcher";
 
 export function useAuth(requiredRole?: string | string[]) {
   const router = useRouter();
   const { data, error, isLoading, mutate } = useSWR<{ user: User }>(
     "/api/auth/me",
-    fetcher,
+    loggingFetcher,
     {
       revalidateOnFocus: false,
       shouldRetryOnError: false,

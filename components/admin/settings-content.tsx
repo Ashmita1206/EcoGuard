@@ -1,6 +1,7 @@
 "use client";
 
 import useSWR from "swr";
+import { loggingFetcher } from "@/lib/fetcher";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +12,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Settings, Sliders, Bell, Shield } from "lucide-react";
 import { useState } from "react";
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 interface ScoringCategory {
   name: string;
@@ -20,7 +20,7 @@ interface ScoringCategory {
 }
 
 export function SettingsContent() {
-  const { data } = useSWR("/api/admin/settings", fetcher);
+  const { data } = useSWR("/api/admin/settings", loggingFetcher);
   const [categories, setCategories] = useState<ScoringCategory[]>([
     { name: "Communication", weight: 25, enabled: true },
     { name: "Problem Resolution", weight: 25, enabled: true },

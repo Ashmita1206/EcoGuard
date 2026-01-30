@@ -5,6 +5,7 @@ import React from "react"
 import { useAuth } from "@/hooks/use-auth";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { loggingFetcher } from "@/lib/fetcher";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -123,6 +124,7 @@ export function DashboardLayout({
   const router = useRouter();
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [notifications, setNotifications] = useState<any[]>([]);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -142,6 +144,34 @@ export function DashboardLayout({
     }
   }, [isLoading, isAuthenticated, isAuthorized, router, user]);
 
+  // Fetch notifications (logs before/after in loggingFetcher)
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchNotifications = async () => {
+      try {
+        const key = typeof window !== 'undefined' ? localStorage.getItem('notificationKey') : null;
+        if (!key) {
+          // eslint-disable-next-line no-console
+          console.warn('[notifications] notificationKey missing in localStorage');
+        }
+
+        const headers: Record<string, string> = key ? { 'x-notification-key': key } : {};
+        const url = `/api/notifications`;
+        const result = await loggingFetcher(url, { headers });
+        // eslint-disable-next-line no-console
+        console.log('[notifications] result', result);
+        const items = result?.notifications || result?.alerts || [];
+        setNotifications(Array.isArray(items) ? items : []);
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error('[notifications] fetch failed', err);
+      }
+    };
+
+    fetchNotifications();
+  }, [user?.id]);
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -154,7 +184,14 @@ export function DashboardLayout({
   }
 
   if (!isAuthenticated || !isAuthorized || !user) {
-    return null;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+          <p className="text-muted-foreground">Accessing EchoGuard — redirecting...</p>
+        </div>
+      </div>
+    );
   }
 
   const baseRoute = `/${user.role}`;
@@ -264,9 +301,18 @@ export function DashboardLayout({
           <div className="flex-1" />
 
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="relative">
+            <Button variant="ghost" size="icon" className="relative" onClick={() => {
+              // eslint-disable-next-line no-console
+              console.log('[notifications] clicked', notifications);
+            }}>
               <Bell className="h-5 w-5" />
-              <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-destructive" />
+              {notifications.length > 0 ? (
+                <span className="absolute -top-1 -right-1 inline-flex items-center justify-center h-5 w-5 rounded-full bg-destructive text-xs text-white">
+                  {notifications.length}
+                </span>
+              ) : (
+                <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-destructive" />
+              )}
             </Button>
 
             <DropdownMenu>

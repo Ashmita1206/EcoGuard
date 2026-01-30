@@ -1,6 +1,7 @@
 "use client";
 
 import useSWR from "swr";
+import { loggingFetcher } from "@/lib/fetcher";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,7 +25,6 @@ import {
 import { Users, Search, Plus, Shield, UserCircle, Headphones } from "lucide-react";
 import { useState } from "react";
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 interface User {
   id: string;
@@ -38,7 +38,7 @@ interface User {
 export function UsersContent() {
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
-  const { data, isLoading } = useSWR<{ users: User[] }>("/api/admin/users", fetcher);
+  const { data, isLoading } = useSWR<{ users: User[] }>("/api/admin/users", loggingFetcher);
 
   const users = data?.users || [];
 

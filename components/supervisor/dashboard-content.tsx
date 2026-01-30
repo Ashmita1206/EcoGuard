@@ -20,7 +20,7 @@ import {
   Cell,
 } from "recharts";
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+import { loggingFetcher } from "@/lib/fetcher";
 
 interface AgentPerformance {
   id: string;
@@ -42,25 +42,8 @@ interface Alert {
 
 export function SupervisorDashboardContent() {
   const { user } = useAuth();
-  const { data: stats, isLoading } = useSWR(
-    user ? "/api/supervisor/stats" : null,
-    fetcher
-  );
-
-  if (isLoading || !stats) {
-    return (
-      <div className="space-y-6">
-        <div className="animate-pulse space-y-6">
-          <div className="h-8 w-48 bg-secondary rounded" />
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-32 bg-secondary rounded-lg" />
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const { data: statsRaw, isLoading } = useSWR(user ? "/api/supervisor/stats" : null, loggingFetcher);
+  const stats = statsRaw || ({} as any);
 
   const getScoreColor = (score: number) => {
     if (score >= 90) return "oklch(0.65 0.18 145)";
@@ -68,6 +51,9 @@ export function SupervisorDashboardContent() {
     if (score >= 60) return "oklch(0.75 0.15 85)";
     return "oklch(0.55 0.2 25)";
   };
+
+  // eslint-disable-next-line no-console
+  console.log('[render] SupervisorDashboard stats:', stats);
 
   return (
     <div className="space-y-6">
@@ -83,25 +69,25 @@ export function SupervisorDashboardContent() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatsCard
           title="Team Members"
-          value={stats.teamSize}
+          value={stats.teamSize ?? 0}
           description="active agents"
           icon={Users}
         />
         <StatsCard
           title="Today's Calls"
-          value={stats.todayCalls}
-          trend={{ value: stats.callsTrend, label: "vs yesterday" }}
+          value={stats.todayCalls ?? 0}
+          trend={{ value: stats.callsTrend ?? 0, label: "vs yesterday" }}
           icon={Phone}
         />
         <StatsCard
           title="Team Avg Score"
-          value={stats.teamAvgScore}
-          trend={{ value: stats.scoreTrend, label: "vs last week" }}
+          value={stats.teamAvgScore ?? 0}
+          trend={{ value: stats.scoreTrend ?? 0, label: "vs last week" }}
           icon={TrendingUp}
         />
         <StatsCard
           title="Alerts"
-          value={stats.pendingAlerts}
+          value={stats.pendingAlerts ?? 0}
           description="require attention"
           icon={AlertTriangle}
         />
@@ -125,7 +111,7 @@ export function SupervisorDashboardContent() {
           <CardContent>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={stats.agentPerformance} layout="vertical">
+                <BarChart data={stats.agentPerformance || []} layout="vertical">
                   <CartesianGrid
                     strokeDasharray="3 3"
                     stroke="oklch(0.28 0.03 250)"
@@ -300,6 +286,8 @@ export function SupervisorDashboardContent() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Debug JSON removed */}
     </div>
   );
 }

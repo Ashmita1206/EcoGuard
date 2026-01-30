@@ -24,8 +24,7 @@ import { Badge } from "@/components/ui/badge";
 import { Phone, Search, Eye, Clock, PhoneIncoming, PhoneOutgoing } from "lucide-react";
 import { useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+import { loggingFetcher } from "@/lib/fetcher";
 
 interface Call {
   id: string;
@@ -48,7 +47,7 @@ interface Call {
 
 export function AgentCallsContent() {
   const [search, setSearch] = useState("");
-  const { data, isLoading } = useSWR<{ calls: Call[] }>("/api/agent/calls", fetcher);
+  const { data, isLoading } = useSWR<{ calls: Call[] }>("/api/agent/calls", loggingFetcher);
 
   const filteredCalls = data?.calls?.filter(
     (call) =>
@@ -70,6 +69,9 @@ export function AgentCallsContent() {
       </div>
     );
   }
+
+  // eslint-disable-next-line no-console
+  console.log('[render] AgentCalls data:', { calls: data?.calls, filteredCallsLength: filteredCalls.length });
 
   return (
     <div className="space-y-6">
@@ -309,6 +311,7 @@ export function AgentCallsContent() {
           </Table>
         </CardContent>
       </Card>
+      {/* Debug JSON removed */}
     </div>
   );
 }

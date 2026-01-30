@@ -1,6 +1,7 @@
 "use client";
 
 import useSWR from "swr";
+import { loggingFetcher } from "@/lib/fetcher";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScoreBadge } from "@/components/score-badge";
@@ -17,7 +18,6 @@ import { Badge } from "@/components/ui/badge";
 import { Phone, Search, Clock, PhoneIncoming, PhoneOutgoing } from "lucide-react";
 import { useState } from "react";
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 interface Call {
   id: string;
@@ -34,7 +34,7 @@ interface Call {
 
 export function AdminCallsContent() {
   const [search, setSearch] = useState("");
-  const { data, isLoading } = useSWR<{ calls: Call[] }>("/api/admin/calls", fetcher);
+  const { data, isLoading } = useSWR<{ calls: Call[] }>("/api/admin/calls", loggingFetcher);
 
   const calls = data?.calls || [];
 
@@ -58,6 +58,9 @@ export function AdminCallsContent() {
       </div>
     );
   }
+
+  // eslint-disable-next-line no-console
+  console.log('[render] AdminCalls data:', { calls: calls.length });
 
   return (
     <div className="space-y-6">
@@ -178,6 +181,7 @@ export function AdminCallsContent() {
           )}
         </CardContent>
       </Card>
+      {/* Debug JSON removed */}
     </div>
   );
 }

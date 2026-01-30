@@ -1,6 +1,7 @@
 "use client";
 
 import useSWR from "swr";
+import { loggingFetcher } from "@/lib/fetcher";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Lightbulb, TrendingUp, AlertCircle, Check, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+// using centralized loggingFetcher from lib/fetcher
 
 interface CoachingInsight {
   id: string;
@@ -23,7 +24,7 @@ interface CoachingInsight {
 export function CoachingContent() {
   const { data, isLoading, mutate } = useSWR<{ insights: CoachingInsight[] }>(
     "/api/agent/coaching",
-    fetcher
+    loggingFetcher
   );
 
   const handleAcknowledge = async (insightId: string) => {

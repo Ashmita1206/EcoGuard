@@ -1,6 +1,7 @@
 "use client";
 
 import useSWR from "swr";
+import { loggingFetcher } from "@/lib/fetcher";
 import { StatsCard } from "@/components/stats-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -19,25 +20,13 @@ import {
   Cell,
 } from "recharts";
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export function AdminDashboardContent() {
-  const { data: stats, isLoading } = useSWR("/api/admin/stats", fetcher);
+  const { data: statsRaw, isLoading } = useSWR("/api/admin/stats", loggingFetcher);
+  const stats = statsRaw || ({} as any);
 
-  if (isLoading || !stats) {
-    return (
-      <div className="space-y-6">
-        <div className="animate-pulse space-y-6">
-          <div className="h-8 w-48 bg-secondary rounded" />
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-32 bg-secondary rounded-lg" />
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // eslint-disable-next-line no-console
+  console.log('[render] AdminDashboard stats:', stats);
 
   const COLORS = [
     "oklch(0.55 0.15 250)",
@@ -60,25 +49,25 @@ export function AdminDashboardContent() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatsCard
           title="Total Users"
-          value={stats.totalUsers}
+          value={stats.totalUsers ?? 0}
           description="across all teams"
           icon={Users}
         />
         <StatsCard
           title="Total Calls Today"
-          value={stats.totalCallsToday}
-          trend={{ value: stats.callsTrend, label: "vs yesterday" }}
+          value={stats.totalCallsToday ?? 0}
+          trend={{ value: stats.callsTrend ?? 0, label: "vs yesterday" }}
           icon={Phone}
         />
         <StatsCard
           title="Org Avg Score"
-          value={stats.orgAvgScore}
-          trend={{ value: stats.scoreTrend, label: "vs last week" }}
+          value={stats.orgAvgScore ?? 0}
+          trend={{ value: stats.scoreTrend ?? 0, label: "vs last week" }}
           icon={TrendingUp}
         />
         <StatsCard
           title="Critical Alerts"
-          value={stats.criticalAlerts}
+          value={stats.criticalAlerts ?? 0}
           description="require attention"
           icon={AlertTriangle}
         />
@@ -102,7 +91,7 @@ export function AdminDashboardContent() {
           <CardContent>
             <div className="h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={stats.scoreTrendData}>
+                <AreaChart data={stats.scoreTrendData || []}>
                   <defs>
                     <linearGradient id="adminScoreGradient" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="oklch(0.55 0.15 250)" stopOpacity={0.3} />
@@ -155,7 +144,7 @@ export function AdminDashboardContent() {
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
-                    data={stats.scoreDistribution}
+                    data={stats.scoreDistribution || []}
                     cx="50%"
                     cy="50%"
                     innerRadius={60}
@@ -253,6 +242,7 @@ export function AdminDashboardContent() {
           )}
         </CardContent>
       </Card>
+      {/* Debug JSON removed */}
     </div>
   );
 }

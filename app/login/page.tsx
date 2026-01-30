@@ -69,7 +69,7 @@ export default function LoginPage() {
           </div>
           <div className="space-y-2">
             <CardTitle className="text-2xl font-bold text-card-foreground">
-              QualityAI
+              EchoGuard
             </CardTitle>
             <CardDescription className="text-muted-foreground">
               Auto-QA & Coaching Platform

@@ -1,6 +1,7 @@
 "use client";
 
 import useSWR from "swr";
+import { loggingFetcher } from "@/lib/fetcher";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -8,7 +9,6 @@ import { ScoreBadge } from "@/components/score-badge";
 import { Progress } from "@/components/ui/progress";
 import { Users, TrendingUp, TrendingDown, Minus } from "lucide-react";
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 interface AgentDetail {
   id: string;
@@ -25,7 +25,7 @@ interface AgentDetail {
 export function TeamPerformanceContent() {
   const { data, isLoading } = useSWR<{ agents: AgentDetail[] }>(
     "/api/supervisor/team",
-    fetcher
+    loggingFetcher
   );
 
   if (isLoading) {
@@ -42,6 +42,9 @@ export function TeamPerformanceContent() {
   }
 
   const agents = data?.agents || [];
+
+  // eslint-disable-next-line no-console
+  console.log('[render] SupervisorTeam agents:', agents.length);
 
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -188,6 +191,8 @@ export function TeamPerformanceContent() {
           </CardContent>
         </Card>
       )}
+
+      {/* Debug JSON removed */}
     </div>
   );
 }

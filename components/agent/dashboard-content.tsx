@@ -17,30 +17,15 @@ import {
   CartesianGrid,
   Tooltip,
 } from "recharts";
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+import { loggingFetcher } from "@/lib/fetcher";
 
 export function AgentDashboardContent() {
   const { user } = useAuth();
-  const { data: stats, isLoading } = useSWR(
-    user ? `/api/agent/stats` : null,
-    fetcher
-  );
+  const { data: statsRaw, isLoading } = useSWR(user ? `/api/agent/stats` : null, loggingFetcher);
+  const stats = statsRaw || ({} as any);
 
-  if (isLoading || !stats) {
-    return (
-      <div className="space-y-6">
-        <div className="animate-pulse space-y-6">
-          <div className="h-8 w-48 bg-secondary rounded" />
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-32 bg-secondary rounded-lg" />
-            ))}
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // eslint-disable-next-line no-console
+  console.log('[render] AgentDashboard stats:', stats);
 
   return (
     <div className="space-y-6">
@@ -58,25 +43,25 @@ export function AgentDashboardContent() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatsCard
           title="Today's Calls"
-          value={stats.todayCalls}
+          value={stats.todayCalls ?? 0}
           description="completed"
           icon={Phone}
         />
         <StatsCard
           title="Avg Handle Time"
-          value={`${Math.floor(stats.avgHandleTime / 60)}m ${stats.avgHandleTime % 60}s`}
-          trend={{ value: stats.handleTimeTrend, label: "vs last week" }}
+          value={`${Math.floor((stats.avgHandleTime ?? 0) / 60)}m ${(stats.avgHandleTime ?? 0) % 60}s`}
+          trend={{ value: stats.handleTimeTrend ?? 0, label: "vs last week" }}
           icon={Clock}
         />
         <StatsCard
           title="Quality Score"
-          value={stats.avgScore}
-          trend={{ value: stats.scoreTrend, label: "vs last week" }}
+          value={stats.avgScore ?? 0}
+          trend={{ value: stats.scoreTrend ?? 0, label: "vs last week" }}
           icon={TrendingUp}
         />
         <StatsCard
           title="Coaching Tips"
-          value={stats.pendingCoaching}
+          value={stats.pendingCoaching ?? 0}
           description="new insights"
           icon={Lightbulb}
         />
@@ -93,8 +78,8 @@ export function AgentDashboardContent() {
           </CardHeader>
           <CardContent>
             <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={stats.scoreTrendData}>
+                <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={stats.scoreTrendData || []}>
                   <defs>
                     <linearGradient id="scoreGradient" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="oklch(0.55 0.15 250)" stopOpacity={0.3} />
@@ -124,13 +109,13 @@ export function AgentDashboardContent() {
                       color: "oklch(0.98 0 0)",
                     }}
                   />
-                  <Area
-                    type="monotone"
-                    dataKey="score"
-                    stroke="oklch(0.55 0.15 250)"
-                    strokeWidth={2}
-                    fill="url(#scoreGradient)"
-                  />
+                    <Area
+                      type="monotone"
+                      dataKey="score"
+                      stroke="oklch(0.55 0.15 250)"
+                      strokeWidth={2}
+                      fill="url(#scoreGradient)"
+                    />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -241,6 +226,8 @@ export function AgentDashboardContent() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Debug JSON removed */}
     </div>
   );
 }

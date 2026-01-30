@@ -1,6 +1,7 @@
 "use client";
 
 import useSWR from "swr";
+import { loggingFetcher } from "@/lib/fetcher";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScoreBadge } from "@/components/score-badge";
@@ -16,7 +17,6 @@ import {
 import { FileText, Search, Bot, User } from "lucide-react";
 import { useState } from "react";
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 interface Evaluation {
   id: string;
@@ -38,7 +38,7 @@ export function EvaluationsContent() {
   const [typeFilter, setTypeFilter] = useState("all");
   const { data, isLoading } = useSWR<{ evaluations: Evaluation[] }>(
     "/api/supervisor/evaluations",
-    fetcher
+    loggingFetcher
   );
 
   const evaluations = data?.evaluations || [];
@@ -207,6 +207,8 @@ export function EvaluationsContent() {
           </CardContent>
         </Card>
       )}
+
+      {/* Debug JSON removed */}
     </div>
   );
 }
