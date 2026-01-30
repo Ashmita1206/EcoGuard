@@ -27,8 +27,8 @@ export async function GET() {
           e.reviewed_by,
           e.created_at
         FROM evaluations e
-        JOIN calls c ON e.call_id = c.id
-        JOIN users u ON c.agent_id = u.id
+        LEFT JOIN calls c ON e.call_id = c.id
+        LEFT JOIN users u ON c.agent_id = u.id
         WHERE u.supervisor_id = ${user.id}
         ORDER BY e.created_at DESC
         LIMIT 50

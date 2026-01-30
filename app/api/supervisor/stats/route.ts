@@ -31,10 +31,9 @@ export async function GET() {
     let todayCallsResult: any = [{ count: 0 }];
     try {
       todayCallsResult = await sql`
-        SELECT COUNT(*) as count
+        SELECT COALESCE(COUNT(*), 0) as count
         FROM calls c
-        JOIN users u ON c.agent_id = u.id
-        WHERE u.supervisor_id = ${user.id}
+        WHERE c.agent_id IN (SELECT id FROM users WHERE supervisor_id = ${user.id} AND role = 'agent')
         AND c.created_at >= ${today.toISOString()}
       `;
     } catch (e) {
@@ -46,10 +45,9 @@ export async function GET() {
     let yesterdayCallsResult: any = [{ count: 0 }];
     try {
       yesterdayCallsResult = await sql`
-        SELECT COUNT(*) as count
+        SELECT COALESCE(COUNT(*), 0) as count
         FROM calls c
-        JOIN users u ON c.agent_id = u.id
-        WHERE u.supervisor_id = ${user.id}
+        WHERE c.agent_id IN (SELECT id FROM users WHERE supervisor_id = ${user.id} AND role = 'agent')
         AND c.created_at >= ${yesterday.toISOString()}
         AND c.created_at < ${today.toISOString()}
       `;
@@ -62,11 +60,10 @@ export async function GET() {
     let teamScoreResult: any = [{ avg_score: 0 }];
     try {
       teamScoreResult = await sql`
-        SELECT AVG(e.total_score) as avg_score
+        SELECT COALESCE(AVG(e.total_score), 0) as avg_score
         FROM evaluations e
-        JOIN calls c ON e.call_id = c.id
-        JOIN users u ON c.agent_id = u.id
-        WHERE u.supervisor_id = ${user.id}
+        LEFT JOIN calls c ON e.call_id = c.id
+        WHERE c.agent_id IN (SELECT id FROM users WHERE supervisor_id = ${user.id} AND role = 'agent')
         AND e.created_at >= ${weekAgo.toISOString()}
       `;
     } catch (e) {
@@ -78,11 +75,10 @@ export async function GET() {
     let prevTeamScoreResult: any = [{ avg_score: 0 }];
     try {
       prevTeamScoreResult = await sql`
-        SELECT AVG(e.total_score) as avg_score
+        SELECT COALESCE(AVG(e.total_score), 0) as avg_score
         FROM evaluations e
-        JOIN calls c ON e.call_id = c.id
-        JOIN users u ON c.agent_id = u.id
-        WHERE u.supervisor_id = ${user.id}
+        LEFT JOIN calls c ON e.call_id = c.id
+        WHERE c.agent_id IN (SELECT id FROM users WHERE supervisor_id = ${user.id} AND role = 'agent')
         AND e.created_at >= ${twoWeeksAgo.toISOString()}
         AND e.created_at < ${weekAgo.toISOString()}
       `;

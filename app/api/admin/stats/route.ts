@@ -32,13 +32,13 @@ export async function GET() {
 
     // Org average score this week
     const orgScoreResult = await sql`
-      SELECT AVG(total_score) as avg_score FROM evaluations 
+      SELECT COALESCE(AVG(total_score), 0) as avg_score FROM evaluations 
       WHERE created_at >= ${weekAgo.toISOString()}
     `;
 
     // Org average score last week
     const prevOrgScoreResult = await sql`
-      SELECT AVG(total_score) as avg_score FROM evaluations 
+      SELECT COALESCE(AVG(total_score), 0) as avg_score FROM evaluations 
       WHERE created_at >= ${twoWeeksAgo.toISOString()} AND created_at < ${weekAgo.toISOString()}
     `;
 
@@ -49,7 +49,7 @@ export async function GET() {
 
     // Score trend data
     const scoreTrendData = await sql`
-      SELECT DATE(created_at) as date, AVG(total_score) as score
+      SELECT DATE(created_at) as date, COALESCE(AVG(total_score), 0) as score
       FROM evaluations
       WHERE created_at >= ${weekAgo.toISOString()}
       GROUP BY DATE(created_at)

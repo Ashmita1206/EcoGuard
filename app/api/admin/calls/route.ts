@@ -22,7 +22,7 @@ export async function GET() {
         c.created_at,
         e.total_score
       FROM calls c
-      JOIN users u ON c.agent_id = u.id
+      LEFT JOIN users u ON c.agent_id = u.id
       LEFT JOIN users s ON u.supervisor_id = s.id
       LEFT JOIN evaluations e ON e.call_id = c.id
       ORDER BY c.created_at DESC

@@ -22,7 +22,7 @@ export async function GET() {
 
     // Get average handle time
     const handleTimeResult = await sql`
-      SELECT AVG(duration_seconds) as avg_duration
+      SELECT COALESCE(AVG(duration_seconds), 0) as avg_duration
       FROM calls
       WHERE agent_id = ${user.id}
       AND created_at >= ${new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()}
@@ -30,18 +30,18 @@ export async function GET() {
 
     // Get average score (join through calls to get agent)
     const scoreResult = await sql`
-      SELECT AVG(e.total_score) as avg_score
+      SELECT COALESCE(AVG(e.total_score), 0) as avg_score
       FROM evaluations e
-      JOIN calls c ON e.call_id = c.id
+      LEFT JOIN calls c ON e.call_id = c.id
       WHERE c.agent_id = ${user.id}
       AND e.created_at >= ${new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()}
     `;
 
     // Get previous week's average score for trend
     const prevScoreResult = await sql`
-      SELECT AVG(e.total_score) as avg_score
+      SELECT COALESCE(AVG(e.total_score), 0) as avg_score
       FROM evaluations e
-      JOIN calls c ON e.call_id = c.id
+      LEFT JOIN calls c ON e.call_id = c.id
       WHERE c.agent_id = ${user.id}
       AND e.created_at >= ${new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString()}
       AND e.created_at < ${new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()}
@@ -59,7 +59,7 @@ export async function GET() {
     const recentEvaluations = await sql`
       SELECT e.id, e.total_score, e.strengths, e.created_at
       FROM evaluations e
-      JOIN calls c ON e.call_id = c.id
+      LEFT JOIN calls c ON e.call_id = c.id
       WHERE c.agent_id = ${user.id}
       ORDER BY e.created_at DESC
       LIMIT 5
@@ -78,9 +78,9 @@ export async function GET() {
     const scoreTrendData = await sql`
       SELECT 
         DATE(e.created_at) as date,
-        AVG(e.total_score) as score
+        COALESCE(AVG(e.total_score), 0) as score
       FROM evaluations e
-      JOIN calls c ON e.call_id = c.id
+      LEFT JOIN calls c ON e.call_id = c.id
       WHERE c.agent_id = ${user.id}
       AND e.created_at >= ${new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()}
       GROUP BY DATE(e.created_at)

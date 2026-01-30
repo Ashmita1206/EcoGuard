@@ -36,12 +36,12 @@ export async function GET() {
       const prevScores = await sql`
         SELECT 
           c.agent_id,
-          AVG(e.total_score) as avg_score
-        FROM evaluations e
-        JOIN calls c ON e.call_id = c.id
+          COALESCE(AVG(e.total_score), 0) as avg_score
+        FROM calls c
+        LEFT JOIN evaluations e ON e.call_id = c.id AND e.created_at >= ${twoWeeksAgo}
         WHERE c.agent_id IN (SELECT id FROM users WHERE supervisor_id = ${user.id} AND role = 'agent')
-        AND e.created_at >= ${twoWeeksAgo}
-        AND e.created_at < ${weekAgo}
+        AND c.created_at >= ${twoWeeksAgo}
+        AND c.created_at < ${weekAgo}
         GROUP BY c.agent_id
       `;
 
@@ -52,8 +52,8 @@ export async function GET() {
         SELECT 
           c.agent_id,
           e.category_scores
-        FROM evaluations e
-        JOIN calls c ON e.call_id = c.id
+        FROM calls c
+        LEFT JOIN evaluations e ON e.call_id = c.id
         WHERE c.agent_id IN (SELECT id FROM users WHERE supervisor_id = ${user.id} AND role = 'agent')
         AND e.created_at >= ${weekAgo}
       `;

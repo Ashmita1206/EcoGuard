@@ -31,7 +31,7 @@ export async function GET() {
         e.improvements,
         t.content as transcript_content
       FROM calls c
-      JOIN users u ON c.agent_id = u.id
+      LEFT JOIN users u ON c.agent_id = u.id
       LEFT JOIN evaluations e ON e.call_id = c.id
       LEFT JOIN transcripts t ON t.call_id = c.id
       WHERE u.supervisor_id = ${user.id}
