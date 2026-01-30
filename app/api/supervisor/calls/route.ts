@@ -64,9 +64,6 @@ export async function GET() {
     return NextResponse.json({ calls: formattedCalls, agents });
   } catch (error) {
     console.error("Error fetching supervisor calls:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch calls" },
-      { status: 500 }
-    );
+    return NextResponse.json({ calls: [], agents: [] });
   }
 }

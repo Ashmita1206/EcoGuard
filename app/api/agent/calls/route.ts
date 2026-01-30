@@ -56,9 +56,6 @@ export async function GET() {
     return NextResponse.json({ calls: formattedCalls });
   } catch (error) {
     console.error("Error fetching calls:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch calls" },
-      { status: 500 }
-    );
+    return NextResponse.json({ calls: [] });
   }
 }

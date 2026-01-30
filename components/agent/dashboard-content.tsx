@@ -24,8 +24,7 @@ export function AgentDashboardContent() {
   const { data: statsRaw, isLoading } = useSWR(user ? `/api/agent/stats` : null, loggingFetcher);
   const stats = statsRaw || ({} as any);
 
-  // eslint-disable-next-line no-console
-  console.log('[render] AgentDashboard stats:', stats);
+  // render
 
   return (
     <div className="space-y-6">

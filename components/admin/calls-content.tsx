@@ -59,8 +59,7 @@ export function AdminCallsContent() {
     );
   }
 
-  // eslint-disable-next-line no-console
-  console.log('[render] AdminCalls data:', { calls: calls.length });
+  // render
 
   return (
     <div className="space-y-6">

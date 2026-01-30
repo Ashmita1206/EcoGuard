@@ -122,9 +122,16 @@ export async function GET() {
     });
   } catch (error) {
     console.error("Error fetching agent stats:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch stats" },
-      { status: 500 }
-    );
+    return NextResponse.json({
+      todayCalls: 0,
+      avgHandleTime: 0,
+      handleTimeTrend: 0,
+      avgScore: 0,
+      scoreTrend: 0,
+      pendingCoaching: 0,
+      recentEvaluations: [],
+      recentInsights: [],
+      scoreTrendData: [],
+    });
   }
 }

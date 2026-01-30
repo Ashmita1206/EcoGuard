@@ -56,9 +56,6 @@ export async function GET() {
     return NextResponse.json({ evaluations: formattedEvaluations });
   } catch (error) {
     console.error("Error fetching evaluations:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch evaluations" },
-      { status: 500 }
-    );
+    return NextResponse.json({ evaluations: [] });
   }
 }

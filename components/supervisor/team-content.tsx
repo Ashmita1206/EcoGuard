@@ -43,8 +43,6 @@ export function TeamPerformanceContent() {
 
   const agents = data?.agents || [];
 
-  // eslint-disable-next-line no-console
-  console.log('[render] SupervisorTeam agents:', agents.length);
 
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);

@@ -25,8 +25,7 @@ export function AdminDashboardContent() {
   const { data: statsRaw, isLoading } = useSWR("/api/admin/stats", loggingFetcher);
   const stats = statsRaw || ({} as any);
 
-  // eslint-disable-next-line no-console
-  console.log('[render] AdminDashboard stats:', stats);
+  // render
 
   const COLORS = [
     "oklch(0.55 0.15 250)",

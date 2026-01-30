@@ -1,8 +1,6 @@
 export async function loggingFetcher(url: string, opts?: RequestInit) {
   try {
-    // Log before fetch
-    // eslint-disable-next-line no-console
-    console.log(`[fetch] -> ${url}`, opts || {});
+    // Attempt fetch
 
     const res = await fetch(url, opts);
 
@@ -14,9 +12,9 @@ export async function loggingFetcher(url: string, opts?: RequestInit) {
       console.warn(`[fetch] unable to parse JSON from ${url}`, err);
     }
 
-    // Log after fetch
+    // Standardized API response log for frontend tracing
     // eslint-disable-next-line no-console
-    console.log(`[fetch] <- ${url}`, { status: res.status, ok: res.ok, body });
+    console.log("API RESPONSE:", url, body);
 
     // (temporary raw-json logging removed in final cleanup)
 

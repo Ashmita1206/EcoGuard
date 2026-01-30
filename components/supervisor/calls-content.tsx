@@ -89,8 +89,7 @@ export function SupervisorCallsContent() {
     );
   }
 
-  // eslint-disable-next-line no-console
-  console.log('[render] SupervisorCalls data:', { calls: calls.length, agents: agents.length });
+  // render
 
   return (
     <div className="space-y-6">

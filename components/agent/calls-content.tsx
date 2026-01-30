@@ -70,8 +70,7 @@ export function AgentCallsContent() {
     );
   }
 
-  // eslint-disable-next-line no-console
-  console.log('[render] AgentCalls data:', { calls: data?.calls, filteredCallsLength: filteredCalls.length });
+  // render
 
   return (
     <div className="space-y-6">

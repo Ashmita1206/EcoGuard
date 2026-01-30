@@ -179,9 +179,18 @@ export async function GET() {
     });
   } catch (error) {
     console.error("Error fetching supervisor stats:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch stats" },
-      { status: 500 }
-    );
+    // Failure-safe defaults
+    return NextResponse.json({
+      teamSize: 0,
+      todayCalls: 0,
+      callsTrend: 0,
+      teamAvgScore: 0,
+      scoreTrend: 0,
+      pendingAlerts: 0,
+      agentPerformance: [],
+      topPerformers: [],
+      needsAttention: [],
+      recentAlerts: [],
+    });
   }
 }

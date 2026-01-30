@@ -52,8 +52,7 @@ export function SupervisorDashboardContent() {
     return "oklch(0.55 0.2 25)";
   };
 
-  // eslint-disable-next-line no-console
-  console.log('[render] SupervisorDashboard stats:', stats);
+  // render
 
   return (
     <div className="space-y-6">

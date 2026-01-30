@@ -10,7 +10,7 @@ export async function GET() {
     }
 
     const sops = await sql`
-      SELECT id, title, content, category, version, created_at, updated_at
+      SELECT id, title, content, category, created_at, updated_at
       FROM sops
       ORDER BY category, title
     `;
@@ -22,11 +22,9 @@ export async function GET() {
     const categories = categoriesResult.map((row) => row.category);
 
     return NextResponse.json({ sops, categories });
-  } catch (error) {
+    } catch (error) {
     console.error("Error fetching SOPs:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch SOPs" },
-      { status: 500 }
-    );
+    // Failure-safe: return empty shape with 200 so frontend can render empty-state
+    return NextResponse.json({ sops: [], categories: [] });
   }
 }

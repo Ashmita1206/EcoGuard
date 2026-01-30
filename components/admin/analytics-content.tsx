@@ -48,8 +48,7 @@ export function AnalyticsContent() {
     );
   }
 
-  // eslint-disable-next-line no-console
-  console.log('[render] AdminAnalytics data keys:', Object.keys(data || {}));
+  // render
 
   return (
     <div className="space-y-6">
