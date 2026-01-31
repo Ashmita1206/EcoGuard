@@ -20,7 +20,6 @@ export async function GET() {
           u.id,
           u.name,
           u.email,
-          u.avatar_url,
           COUNT(DISTINCT c.id) as total_calls,
           COALESCE(AVG(e.total_score), 0) as avg_score,
           COALESCE(AVG(c.duration_seconds), 0) as avg_handle_time
@@ -28,7 +27,7 @@ export async function GET() {
         LEFT JOIN calls c ON c.agent_id = u.id AND c.created_at >= ${weekAgo}
         LEFT JOIN evaluations e ON e.call_id = c.id AND e.created_at >= ${weekAgo}
         WHERE u.supervisor_id = ${user.id} AND u.role = 'agent'
-        GROUP BY u.id, u.name, u.email, u.avatar_url
+        GROUP BY u.id, u.name, u.email
         ORDER BY avg_score DESC
       `;
 
@@ -100,7 +99,6 @@ export async function GET() {
           id: agent.id,
           name: agent.name,
           email: agent.email,
-          avatar_url: agent.avatar_url,
           total_calls: Number(agent.total_calls),
           avg_score: currentScore,
           avg_handle_time: Math.round(Number(agent.avg_handle_time)),
@@ -109,13 +107,13 @@ export async function GET() {
         };
       });
 
-      return NextResponse.json({ agents: formattedAgents });
+      return NextResponse.json({ success: true, data: { agents: formattedAgents } });
     } catch (e) {
       console.error('Error fetching team data (robust):', e);
-      return NextResponse.json({ agents: [] });
+      return NextResponse.json({ success: true, data: { agents: [] } });
     }
   } catch (error) {
     console.error("Error fetching team data:", error);
-    return NextResponse.json({ agents: [] });
+    return NextResponse.json({ success: true, data: { agents: [] } });
   }
 }

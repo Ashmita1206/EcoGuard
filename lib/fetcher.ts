@@ -27,7 +27,9 @@ export async function loggingFetcher(url: string, opts?: RequestInit) {
       throw err;
     }
 
-    return body;
+    // Return the data field if it exists (for new standardized format)
+    // Otherwise return the entire body for backward compatibility
+    return body.data !== undefined ? body.data : body;
   } catch (err) {
     // eslint-disable-next-line no-console
     console.error(`[fetch] error ${url}`, err);

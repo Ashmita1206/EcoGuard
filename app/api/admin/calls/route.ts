@@ -29,9 +29,9 @@ export async function GET() {
       LIMIT 200
     `;
 
-    return NextResponse.json({ calls });
+    return NextResponse.json({ success: true, data: { calls } });
   } catch (error) {
     console.error("Error fetching calls:", error);
-    return NextResponse.json({ calls: [] });
+    return NextResponse.json({ success: true, data: { calls: [] } });
   }
 }

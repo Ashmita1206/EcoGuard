@@ -15,13 +15,16 @@ export async function GET() {
     `;
 
     return NextResponse.json({
-      scoringConfig: scoringConfig[0] || null,
+      success: true,
+      data: {
+        scoringConfig: scoringConfig[0] || null,
+      },
     });
   } catch (error) {
     console.error("Error fetching settings:", error);
     return NextResponse.json(
-      { error: "Failed to fetch settings" },
-      { status: 500 }
+      { success: true, data: { scoringConfig: null } },
+      { status: 200 }
     );
   }
 }

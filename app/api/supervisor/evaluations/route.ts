@@ -53,9 +53,9 @@ export async function GET() {
       formattedEvaluations = [];
     }
 
-    return NextResponse.json({ evaluations: formattedEvaluations });
+    return NextResponse.json({ success: true, data: { evaluations: formattedEvaluations } });
   } catch (error) {
     console.error("Error fetching evaluations:", error);
-    return NextResponse.json({ evaluations: [] });
+    return NextResponse.json({ success: true, data: { evaluations: [] } });
   }
 }

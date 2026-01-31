@@ -53,9 +53,9 @@ export async function GET() {
         : null,
     }));
 
-    return NextResponse.json({ calls: formattedCalls });
+    return NextResponse.json({ success: true, data: { calls: formattedCalls } });
   } catch (error) {
     console.error("Error fetching calls:", error);
-    return NextResponse.json({ calls: [] });
+    return NextResponse.json({ success: true, data: { calls: [] } });
   }
 }

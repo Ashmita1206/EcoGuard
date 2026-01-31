@@ -21,10 +21,10 @@ export async function GET() {
     `;
     const categories = categoriesResult.map((row) => row.category);
 
-    return NextResponse.json({ sops, categories });
+    return NextResponse.json({ success: true, data: { sops, categories } });
     } catch (error) {
     console.error("Error fetching SOPs:", error);
     // Failure-safe: return empty shape with 200 so frontend can render empty-state
-    return NextResponse.json({ sops: [], categories: [] });
+    return NextResponse.json({ success: true, data: { sops: [], categories: [] } });
   }
 }

@@ -121,37 +121,43 @@ export async function GET() {
     }
 
     return NextResponse.json({
-      totalUsers: Number(usersResult[0]?.count) || 0,
-      totalCallsToday: todayCalls,
-      callsTrend,
-      orgAvgScore: Math.round(currentOrgScore) || 0,
-      scoreTrend,
-      criticalAlerts: Number(alertsResult[0]?.count) || 0,
-      scoreTrendData: formattedTrendData,
-      scoreDistribution: scoreDistribution.map((d) => ({
-        name: d.name,
-        value: Number(d.value),
-      })),
-      supervisorPerformance: supervisorPerformance.map((s) => ({
-        supervisor_id: s.supervisor_id,
-        supervisor_name: s.supervisor_name,
-        agent_count: Number(s.agent_count),
-        avg_score: Math.round(Number(s.avg_score)),
-        total_calls: Number(s.total_calls),
-      })),
+      success: true,
+      data: {
+        totalUsers: Number(usersResult[0]?.count) || 0,
+        totalCallsToday: todayCalls,
+        callsTrend,
+        orgAvgScore: Math.round(currentOrgScore) || 0,
+        scoreTrend,
+        criticalAlerts: Number(alertsResult[0]?.count) || 0,
+        scoreTrendData: formattedTrendData,
+        scoreDistribution: scoreDistribution.map((d) => ({
+          name: d.name,
+          value: Number(d.value),
+        })),
+        supervisorPerformance: supervisorPerformance.map((s) => ({
+          supervisor_id: s.supervisor_id,
+          supervisor_name: s.supervisor_name,
+          agent_count: Number(s.agent_count),
+          avg_score: Math.round(Number(s.avg_score)),
+          total_calls: Number(s.total_calls),
+        })),
+      },
     });
   } catch (error) {
     console.error("Error fetching admin stats:", error);
     return NextResponse.json({
-      totalUsers: 0,
-      totalCallsToday: 0,
-      callsTrend: 0,
-      orgAvgScore: 0,
-      scoreTrend: 0,
-      criticalAlerts: 0,
-      scoreTrendData: [],
-      scoreDistribution: [],
-      supervisorPerformance: [],
+      success: true,
+      data: {
+        totalUsers: 0,
+        totalCallsToday: 0,
+        callsTrend: 0,
+        orgAvgScore: 0,
+        scoreTrend: 0,
+        criticalAlerts: 0,
+        scoreTrendData: [],
+        scoreDistribution: [],
+        supervisorPerformance: [],
+      },
     });
   }
 }

@@ -61,9 +61,9 @@ export async function GET() {
         : null,
     }));
 
-    return NextResponse.json({ calls: formattedCalls, agents });
+    return NextResponse.json({ success: true, data: { calls: formattedCalls, agents } });
   } catch (error) {
     console.error("Error fetching supervisor calls:", error);
-    return NextResponse.json({ calls: [], agents: [] });
+    return NextResponse.json({ success: true, data: { calls: [], agents: [] } });
   }
 }

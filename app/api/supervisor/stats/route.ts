@@ -104,14 +104,13 @@ export async function GET() {
         SELECT 
           u.id,
           u.name,
-          u.avatar_url,
           COUNT(DISTINCT c.id) as total_calls,
           COALESCE(AVG(e.total_score), 0) as avg_score
         FROM users u
         LEFT JOIN calls c ON c.agent_id = u.id AND c.created_at >= ${weekAgo.toISOString()}
         LEFT JOIN evaluations e ON e.call_id = c.id AND e.created_at >= ${weekAgo.toISOString()}
         WHERE u.supervisor_id = ${user.id} AND u.role = 'agent'
-        GROUP BY u.id, u.name, u.avatar_url
+        GROUP BY u.id, u.name
         ORDER BY avg_score DESC
       `;
     } catch (e) {
@@ -122,8 +121,8 @@ export async function GET() {
     // Get recent alerts (robust to schema differences)
     let recentAlerts: any[] = [];
     try {
-      const rows = await sql`SELECT id, alert_type, title, message, severity, created_at FROM alerts ORDER BY created_at DESC LIMIT 100`;
-      recentAlerts = Array.isArray(rows) ? rows.filter((a: any) => a.user_id === user.id || a.userId === user.id || a.user === user.id).slice(0,5) : [];
+      const rows = await sql`SELECT id, alert_type, severity, message, created_at FROM alerts WHERE user_id = ${user.id} ORDER BY created_at DESC LIMIT 5`;
+      recentAlerts = Array.isArray(rows) ? rows : [];
     } catch (e) {
       console.error('/api/supervisor/stats recent alerts select error', e);
       recentAlerts = [];
@@ -145,7 +144,6 @@ export async function GET() {
     const formattedPerformance = agentPerformance.map((agent) => ({
       id: agent.id,
       name: agent.name,
-      avatar_url: agent.avatar_url,
       total_calls: Number(agent.total_calls),
       avg_score: Math.round(Number(agent.avg_score)),
       trend: 0,
@@ -162,31 +160,37 @@ export async function GET() {
       .slice(0, 3);
 
     return NextResponse.json({
-      teamSize: Number(teamSizeResult[0]?.count) || 0,
-      todayCalls,
-      callsTrend,
-      teamAvgScore: Math.round(currentAvgScore) || 0,
-      scoreTrend,
-      pendingAlerts: Number(alertsResult[0]?.count) || 0,
-      agentPerformance: formattedPerformance,
-      topPerformers,
-      needsAttention,
-      recentAlerts,
+      success: true,
+      data: {
+        teamSize: Number(teamSizeResult[0]?.count) || 0,
+        todayCalls,
+        callsTrend,
+        teamAvgScore: Math.round(currentAvgScore) || 0,
+        scoreTrend,
+        pendingAlerts: Number(alertsResult[0]?.count) || 0,
+        agentPerformance: formattedPerformance,
+        topPerformers,
+        needsAttention,
+        recentAlerts,
+      },
     });
   } catch (error) {
     console.error("Error fetching supervisor stats:", error);
     // Failure-safe defaults
     return NextResponse.json({
-      teamSize: 0,
-      todayCalls: 0,
-      callsTrend: 0,
-      teamAvgScore: 0,
-      scoreTrend: 0,
-      pendingAlerts: 0,
-      agentPerformance: [],
-      topPerformers: [],
-      needsAttention: [],
-      recentAlerts: [],
+      success: true,
+      data: {
+        teamSize: 0,
+        todayCalls: 0,
+        callsTrend: 0,
+        teamAvgScore: 0,
+        scoreTrend: 0,
+        pendingAlerts: 0,
+        agentPerformance: [],
+        topPerformers: [],
+        needsAttention: [],
+        recentAlerts: [],
+      },
     });
   }
 }

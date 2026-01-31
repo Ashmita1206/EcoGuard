@@ -76,37 +76,40 @@ export async function GET(request: NextRequest) {
     `;
 
     return NextResponse.json({
-      callVolume: callVolume.map((d) => ({
-        date: new Date(d.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-        calls: Number(d.calls),
-      })),
-      scoreTrend: scoreTrend.map((d) => ({
-        date: new Date(d.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
-        avgScore: Math.round(Number(d.avgscore)),
-        minScore: Math.round(Number(d.minscore)),
-        maxScore: Math.round(Number(d.maxscore)),
-      })),
-      categoryPerformance: categoryPerformance.map((c) => ({
-        category: c.category.replace(/_/g, " ").replace(/\b\w/g, (l: string) => l.toUpperCase()),
-        score: Math.round(Number(c.score)),
-      })),
-      teamComparison: supervisorComparison.map((s) => ({
-        team: s.supervisor,
-        avgScore: Math.round(Number(s.avgscore) || 0),
-        callCount: Math.round(Number(s.callcount) || 0),
-      })),
-      summary: {
-        totalCalls: Number(summaryResult[0]?.total_calls) || 0,
-        totalEvaluations: Number(summaryResult[0]?.total_evaluations) || 0,
-        avgScore: Math.round(Number(summaryResult[0]?.avg_score) || 0),
-        excellentRate: Math.round(Number(summaryResult[0]?.excellent_rate) || 0),
-        improvementRate: Math.round(Number(summaryResult[0]?.improvement_rate) || 0),
+      success: true,
+      data: {
+        callVolume: callVolume.map((d) => ({
+          date: new Date(d.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+          calls: Number(d.calls),
+        })),
+        scoreTrend: scoreTrend.map((d) => ({
+          date: new Date(d.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+          avgScore: Math.round(Number(d.avgscore)),
+          minScore: Math.round(Number(d.minscore)),
+          maxScore: Math.round(Number(d.maxscore)),
+        })),
+        categoryPerformance: categoryPerformance.map((c) => ({
+          category: c.category.replace(/_/g, " ").replace(/\b\w/g, (l: string) => l.toUpperCase()),
+          score: Math.round(Number(c.score)),
+        })),
+        teamComparison: supervisorComparison.map((s) => ({
+          team: s.supervisor,
+          avgScore: Math.round(Number(s.avgscore) || 0),
+          callCount: Math.round(Number(s.callcount) || 0),
+        })),
+        summary: {
+          totalCalls: Number(summaryResult[0]?.total_calls) || 0,
+          totalEvaluations: Number(summaryResult[0]?.total_evaluations) || 0,
+          avgScore: Math.round(Number(summaryResult[0]?.avg_score) || 0),
+          excellentRate: Math.round(Number(summaryResult[0]?.excellent_rate) || 0),
+          improvementRate: Math.round(Number(summaryResult[0]?.improvement_rate) || 0),
+        },
       },
     });
   } catch (error) {
     console.error("Error fetching analytics:", error);
     return NextResponse.json(
-      { error: "Failed to fetch analytics" },
+      { success: true, data: { callVolume: [], scoreTrend: [], categoryPerformance: [], teamComparison: [], summary: { totalCalls: 0, totalEvaluations: 0, avgScore: 0, excellentRate: 0, improvementRate: 0 } } },
       { status: 500 }
     );
   }

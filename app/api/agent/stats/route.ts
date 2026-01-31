@@ -110,28 +110,34 @@ export async function GET() {
     }
 
     return NextResponse.json({
-      todayCalls: Number(todayCallsResult[0]?.count) || 0,
-      avgHandleTime: Math.round(Number(handleTimeResult[0]?.avg_duration) || 0),
-      handleTimeTrend: -2,
-      avgScore: Math.round(currentAvgScore) || 0,
-      scoreTrend,
-      pendingCoaching: Number(coachingResult[0]?.count) || 0,
-      recentEvaluations,
-      recentInsights,
-      scoreTrendData: filledTrendData,
+      success: true,
+      data: {
+        todayCalls: Number(todayCallsResult[0]?.count) || 0,
+        avgHandleTime: Math.round(Number(handleTimeResult[0]?.avg_duration) || 0),
+        handleTimeTrend: -2,
+        avgScore: Math.round(currentAvgScore) || 0,
+        scoreTrend,
+        pendingCoaching: Number(coachingResult[0]?.count) || 0,
+        recentEvaluations,
+        recentInsights,
+        scoreTrendData: filledTrendData,
+      },
     });
   } catch (error) {
     console.error("Error fetching agent stats:", error);
     return NextResponse.json({
-      todayCalls: 0,
-      avgHandleTime: 0,
-      handleTimeTrend: 0,
-      avgScore: 0,
-      scoreTrend: 0,
-      pendingCoaching: 0,
-      recentEvaluations: [],
-      recentInsights: [],
-      scoreTrendData: [],
+      success: true,
+      data: {
+        todayCalls: 0,
+        avgHandleTime: 0,
+        handleTimeTrend: 0,
+        avgScore: 0,
+        scoreTrend: 0,
+        pendingCoaching: 0,
+        recentEvaluations: [],
+        recentInsights: [],
+        scoreTrendData: [],
+      },
     });
   }
 }
